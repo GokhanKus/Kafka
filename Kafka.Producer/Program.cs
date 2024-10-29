@@ -1,10 +1,15 @@
-﻿namespace Kafka.Producer
+﻿using Confluent.Kafka;
+using Confluent.Kafka.Admin;
+
+namespace Kafka.Producer
 {
 	internal class Program
 	{
-		static void Main(string[] args)
+		string topicName = "topic_one";
+		static async Task Main(string[] args)
 		{
-			Console.WriteLine("Hello, World!");
+			var kafkaService = new KafkaService();
+			await kafkaService.CreateTopicAsync();
 		}
 	}
 }
