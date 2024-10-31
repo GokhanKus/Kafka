@@ -17,6 +17,7 @@ namespace Kafka.Consumer
 				GroupId = "use-case-1-group-1",
 				AutoOffsetReset = AutoOffsetReset.Earliest
 				//ornegin queue'da 10 tane mesaj onceden varsa biz baglandigimizda once o 10 tane mesaji okuyacagimi daha sonrasında gelen mesajları okuyacagini belirtiyorum
+				//latest dersek baglandigimiz andan itabaren mesajları okumaya baslar oncekileri okumaz
 			};
 			using var consumer = new ConsumerBuilder<Null, string>(config).Build();
 			consumer.Subscribe(topicName);

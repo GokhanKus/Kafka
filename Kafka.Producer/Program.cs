@@ -8,7 +8,7 @@ namespace Kafka.Producer
 		static async Task Main(string[] args)
 		{
 			var kafkaService = new KafkaService();
-			var topicName = "use-case-1-topic";
+			var topicName = "use-case-1.1-topic";
 			await kafkaService.CreateTopicAsync(topicName);
 			await kafkaService.SendSimpleMessageWithNullKey(topicName);
 
