@@ -55,4 +55,11 @@ zero copy ile ram olmadan dogrudan diske de kaydedebilir daha performansli ancak
 Message 2 parcadan olusur (key, value) key null olursa mesaj rastgele bir partition'a gider 
 key degeri verilirse ilgili hash algoritmasından sonra ilgili partitiona gider ve yine aynı keye sahip bir mesaj gonderilirse o da aynı partitiona gider
 key ve value binary seklinde serialize edilir okunurkende record'da deserilize edilir
+
+bir consumer birden fazla partitiondan data okuyabilir; ama 1 partition varsa ve birden fazla consumer varsa sadece 1 consumer datayı okuyabilir
+mesaj okundugunda ilgili offset bir yana kayar ve bu her partition icin ayrı ayrı offset degeri tutulur
+consumer tarafında partitionlarda offset vardır okuma sırası diyebiliriz tek consumer oldugunu dusunelim bu her bir partition icin bir offset degeri vardır
+
+3 partition var ve 3 consumer var bunlar group A olsun her birine birer partition gider 
+ama yeni bir grupla (group B) 3 adet daha consumer olursa kafka her iki gruptaki consumerlara aynı veriyi duplicate eder
 */
