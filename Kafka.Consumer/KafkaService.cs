@@ -37,4 +37,7 @@ namespace Kafka.Consumer
 /*
 rabbit mq'da push mantigi vardir rabbitmq consumerlara mesaj gonderir
 kafkada pull mantigi vardir consumerler kafkadan mesaji alır
+
+bizim topic'imizin 3 partitionu var dolayısıyla max 3 adet consumer mesajlari tüketebilir, ornegin 4 tane consumer ayaga kaldirilirsa bir tanesi idle'da bekler
+ona mesajlar gitmez bunun icin debugsız consumer'i 3 ve 4 kere calistiralim sonra producerdan mesajları gonderelim 
  */

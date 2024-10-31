@@ -29,7 +29,7 @@ namespace Kafka.Producer
 
 			using var producer = new ProducerBuilder<Null, string>(config).Build();
 
-			foreach (var item in Enumerable.Range(1, 10))
+			foreach (var item in Enumerable.Range(1, 100))
 			{
 				var message = new Message<Null, string>()
 				{
