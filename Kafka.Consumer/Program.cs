@@ -5,10 +5,9 @@
 		static async Task Main(string[] args)
 		{
 			Console.WriteLine("Kafka Consumer 1");
-			var topicName = "use-case-2-topic";
+			var topicName = "use-case-3-topic";
 			var kafkaService = new KafkaService();
-			//await kafkaService.ConsumeSimpleMessageWithNullKey(topicName);
-			await kafkaService.ConsumeSimpleMessageWithIntKey(topicName);
+			await kafkaService.ConsumeComplexMessageWithIntKey(topicName);
 			Console.ReadLine();
 		}
 	}

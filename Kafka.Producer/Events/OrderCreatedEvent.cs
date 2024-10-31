@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Kafka.Producer.Events
+﻿namespace Kafka.Producer.Events
 {
 	//classlari '==' ile karsilastirirsak referans tipleriyle karsilastirir
 	//recordlarda ise icersindeki propertlerin degerleri uzerinden bir karsilastirma yapar

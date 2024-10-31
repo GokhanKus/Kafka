@@ -1,4 +1,5 @@
 ﻿using Confluent.Kafka;
+using Kafka.Consumer.Events;
 
 namespace Kafka.Consumer
 {
@@ -41,7 +42,7 @@ namespace Kafka.Consumer
 			};
 			using var consumer = new ConsumerBuilder<int, string>(config).Build();
 			consumer.Subscribe(topicName);
-			
+
 			while (true)
 			{
 				var consumeResult = consumer.Consume(5000); //burasi bloklayici bir satir; mesaj gelene kadar burada kod bloke olur o yüzden timeout verelim
@@ -51,6 +52,35 @@ namespace Kafka.Consumer
 					Console.WriteLine($"gelen mesaj: key = {consumeResult.Message.Key} value = {consumeResult.Message.Value})");
 				}
 				await Task.Delay(200);
+			}
+		}
+		internal async Task ConsumeComplexMessageWithIntKey(string topicName)
+		{
+			var config = new ConsumerConfig
+			{
+				BootstrapServers = "localhost:9094",
+				GroupId = "use-case-1-group-1",
+				AutoOffsetReset = AutoOffsetReset.Earliest
+				//ornegin queue'da 10 tane mesaj onceden varsa biz baglandigimizda once o 10 tane mesaji okuyacagimi daha sonrasında gelen mesajları okuyacagini belirtiyorum
+				//latest dersek baglandigimiz andan itabaren mesajları okumaya baslar oncekileri 
+			};
+			using var consumer = new ConsumerBuilder<int, OrderCreatedEvent>(config)
+				.SetValueDeserializer(new CustomValueDeserializer<OrderCreatedEvent>())
+				.Build();
+
+			consumer.Subscribe(topicName);
+
+			while (true)
+			{
+				var consumeResult = consumer.Consume(5000); //burasi bloklayici bir satir; mesaj gelene kadar burada kod bloke olur o yüzden timeout verelim
+															//5 saniye bekleyip bu consumer.consume() satırından cıkacak
+				if (consumeResult != null)
+				{
+					var orderCreatedEvent = consumeResult.Message.Value;
+					Console.WriteLine($"UserId: {orderCreatedEvent.UserId}\nOrderCode:{orderCreatedEvent.OrderCode}\nTotalPrice{orderCreatedEvent.TotalPrice}");
+					Console.WriteLine(new string('-', 50));
+				}
+				await Task.Delay(20);
 			}
 		}
 	}
