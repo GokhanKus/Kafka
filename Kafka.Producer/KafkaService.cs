@@ -1,6 +1,7 @@
 ﻿using Confluent.Kafka.Admin;
 using Confluent.Kafka;
 using Kafka.Producer.Events;
+using System.Text;
 
 namespace Kafka.Producer
 {
@@ -78,7 +79,7 @@ namespace Kafka.Producer
 			using var producer = new ProducerBuilder<int, OrderCreatedEvent>(config)
 				.SetValueSerializer(new CustomValueSerializer<OrderCreatedEvent>())
 				.Build();
-			
+
 			foreach (var item in Enumerable.Range(1, 100))
 			{
 				var orderCreatedEvent = new OrderCreatedEvent { OrderCode = Guid.NewGuid().ToString(), TotalPrice = item * 100, UserId = item };
@@ -86,6 +87,41 @@ namespace Kafka.Producer
 				{
 					Value = orderCreatedEvent,
 					Key = item
+				};
+				var result = await producer.ProduceAsync(topicName, message);
+
+				foreach (var propertyInfo in result.GetType().GetProperties())
+				{
+					Console.WriteLine($"{propertyInfo.Name}:{propertyInfo.GetValue(result)}");
+				}
+				Console.WriteLine(new string('-', 50));
+				await Task.Delay(10);
+			}
+		}
+
+		//header'a metadata bilgileri konulur yani asıl dataya konulmayacak gereksiz datalar konulur mesajla ilgili extra bilgiler icerir
+		internal async Task SendComplexMessageWithIntKeyAndHeader(string topicName)
+		{
+			var config = new ProducerConfig { BootstrapServers = "localhost:9094" };
+
+			using var producer = new ProducerBuilder<int, OrderCreatedEvent>(config)
+				.SetValueSerializer(new CustomValueSerializer<OrderCreatedEvent>())
+				.Build();
+
+			var header = new Headers
+			{
+				{ "correlation_id", Encoding.UTF8.GetBytes("123")},
+				{ "version", Encoding.UTF8.GetBytes("v1")},
+			};
+
+			foreach (var item in Enumerable.Range(1, 3))
+			{
+				var orderCreatedEvent = new OrderCreatedEvent { OrderCode = Guid.NewGuid().ToString(), TotalPrice = item * 100, UserId = item };
+				var message = new Message<int, OrderCreatedEvent>()
+				{
+					Value = orderCreatedEvent,
+					Key = item,
+					Headers = header
 				};
 				var result = await producer.ProduceAsync(topicName, message);
 
