@@ -106,11 +106,43 @@ namespace Kafka.Consumer
 															//5 saniye bekleyip bu consumer.consume() satırından cıkacak
 				if (consumeResult != null)
 				{
-					var correlationId = Encoding.UTF8.GetString(consumeResult.Message.Headers.GetLastBytes("correlation_id"));	//Headers[0].GetValueBytes();
+					var correlationId = Encoding.UTF8.GetString(consumeResult.Message.Headers.GetLastBytes("correlation_id"));  //Headers[0].GetValueBytes();
 					var version = Encoding.UTF8.GetString(consumeResult.Message.Headers.GetLastBytes("version"));   //Headers[1].GetValueBytes();
 					Console.WriteLine($"headers: correlation_id: {correlationId}, version: {version}");
 
 					var orderCreatedEvent = consumeResult.Message.Value;
+					Console.WriteLine($"UserId: {orderCreatedEvent.UserId}\nOrderCode:{orderCreatedEvent.OrderCode}\nTotalPrice{orderCreatedEvent.TotalPrice}");
+					Console.WriteLine(new string('-', 50));
+				}
+				await Task.Delay(20);
+			}
+		}
+		internal async Task ConsumeComplexMessageWithComplexKey(string topicName)
+		{
+			var config = new ConsumerConfig
+			{
+				BootstrapServers = "localhost:9094",
+				GroupId = "use-case-1-group-1",
+				AutoOffsetReset = AutoOffsetReset.Earliest
+				//ornegin queue'da 10 tane mesaj onceden varsa biz baglandigimizda once o 10 tane mesaji okuyacagimi daha sonrasında gelen mesajları okuyacagini belirtiyorum
+				//latest dersek baglandigimiz andan itabaren mesajları okumaya baslar oncekileri 
+			};
+			using var consumer = new ConsumerBuilder<MessageKey, OrderCreatedEvent>(config)
+				.SetValueDeserializer(new CustomValueDeserializer<OrderCreatedEvent>())
+				.SetKeyDeserializer(new CustomKeyDeserializer<MessageKey>())
+				.Build();
+
+			consumer.Subscribe(topicName);
+
+			while (true)
+			{
+				var consumeResult = consumer.Consume(5000); //burasi bloklayici bir satir; mesaj gelene kadar burada kod bloke olur o yüzden timeout verelim
+															//5 saniye bekleyip bu consumer.consume() satırından cıkacak
+				if (consumeResult != null)
+				{
+					var orderCreatedEvent = consumeResult.Message.Value;
+					var messageKey = consumeResult.Message.Key;
+					Console.WriteLine($"key1: {messageKey.Key1}, key2: {messageKey.Key2}");
 					Console.WriteLine($"UserId: {orderCreatedEvent.UserId}\nOrderCode:{orderCreatedEvent.OrderCode}\nTotalPrice{orderCreatedEvent.TotalPrice}");
 					Console.WriteLine(new string('-', 50));
 				}
