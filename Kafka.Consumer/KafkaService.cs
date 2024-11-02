@@ -197,8 +197,7 @@ namespace Kafka.Consumer
 			{
 				BootstrapServers = "localhost:9094",
 				GroupId = "use-case-1-group-3",
-				AutoOffsetReset = AutoOffsetReset.Earliest
-			
+				AutoOffsetReset = AutoOffsetReset.Earliest,
 			};
 			using var consumer = new ConsumerBuilder<Null, string>(config).Build();
 			var topicPartitionOffset = new TopicPartitionOffset(topicName, partition: 2, offset: 4); //2.partitiondaki mesajlari 4. mesajdan sonrakileri okur .
@@ -222,4 +221,6 @@ kafkada pull mantigi vardir consumerler kafkadan mesaji alır
 
 bizim topic'imizin 3 partitionu var dolayısıyla max 3 adet consumer mesajlari tüketebilir, ornegin 4 tane consumer ayaga kaldirilirsa bir tanesi idle'da bekler
 ona mesajlar gitmez bunun icin debugsız consumer'i 3 ve 4 kere calistiralim sonra producerdan mesajları gonderelim 
+
+
  */

@@ -8,9 +8,9 @@ namespace Kafka.Producer
 		static async Task Main(string[] args)
 		{
 			var kafkaService = new KafkaService();
-			var topicName = "use-case-5-topic";
+			var topicName = "ack-topic";
 			await kafkaService.CreateTopicAsync(topicName);  
-			await kafkaService.SendMessageToSpecificPartition(topicName);
+			await kafkaService.SendMessageWithAcknowledgement(topicName);
 
 			Console.WriteLine("mesajlar gonderilmistir");
 		}

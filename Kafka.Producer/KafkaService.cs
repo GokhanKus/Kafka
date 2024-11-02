@@ -215,6 +215,33 @@ namespace Kafka.Producer
 				await Task.Delay(10);
 			}
 		}
+		internal async Task SendMessageWithAcknowledgement(string topicName)
+		{
+			var config = new ProducerConfig
+			{
+				BootstrapServers = "localhost:9094",
+				Acks = Acks.All //Acks.Leader ,Acks.None,
+			};
+
+			using var producer = new ProducerBuilder<Null, string>(config).Build();
+
+			foreach (var item in Enumerable.Range(1, 10))
+			{
+				var message = new Message<Null, string>
+				{
+					Value = $"message: {item}"
+				};
+
+				var result = await producer.ProduceAsync(topicName, message);
+
+				foreach (var propertyInfo in result.GetType().GetProperties())
+				{
+					Console.WriteLine($"{propertyInfo.Name}:{propertyInfo.GetValue(result)}");
+				}
+				Console.WriteLine(new string('-', 50));
+				await Task.Delay(10);
+			}
+		}
 	}
 }
 /*
@@ -232,4 +259,21 @@ consumer tarafında partitionlarda offset vardır okuma sırası diyebiliriz tek
 
 3 partition var ve 3 consumer var bunlar group A olsun her birine birer partition gider 
 ama yeni bir grupla (group B) 3 adet daha consumer olursa kafka her iki gruptaki consumerlara aynı veriyi duplicate eder
+
+Acknowledgement for producer;
+3 secenek var 
+
+acks degeri 0 olursa;
+partition'a leader'e ve diger brokerlardaki replicalara mesajin ulasmasi garanti degildir gitmeyedebilir ama performanslidir 
+ornegin bir yerdeki ısı ve nem degerlerinin (1000 adet veri) ortalamasini gonderecegimiz zaman hatalı mesajlar tolere edilebilir
+veriyi aliyor daha diske kaydetmeden bize hemen response'u doner arka planda kaydedebilirse eder.
+
+acks degeri 1 olursa;
+partition'a leader'e mesaj guvenli bir sekilde ulasmasinin onayini bekler mesaj basarili bir sekilde alindiginda kabul edilir, 
+ama diger brokerlardaki replicalar icin ayni durum söz konusu degildir basarili mesaj garanti degildir defaultu budur
+
+acks degeri All veya -1 olursa;
+hem partitiondaki leader icin hem de diger brokerlardaki replicalar icin gonderilen mesajin basarili olmasının onayini bekler full guvenliklidir
+buna ornek olarak mesela siparis bilgileri iceren mesajlar olabilir bununla ilgili veri kaybi tolere edilemez
+ihtiyaca gore 3'u de kullanilabilir
 */
