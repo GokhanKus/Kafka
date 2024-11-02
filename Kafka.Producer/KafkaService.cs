@@ -13,10 +13,16 @@ namespace Kafka.Producer
 			{
 				BootstrapServers = "localhost:9094"
 			}).Build();
+
+			var configs = new Dictionary<string, string>()
+			{
+				{"message.timestamp.type","LogAppendTime" }
+			};
+
 			try
 			{
 				await adminClient.CreateTopicsAsync(new[]{
-				new TopicSpecification{Name = topicName,NumPartitions = 3,ReplicationFactor = 1}
+				new TopicSpecification{Name = topicName,NumPartitions = 3,ReplicationFactor = 1,Configs = configs}
 				});
 				Console.WriteLine($"topic ({topicName}) olustu");
 			}
@@ -86,7 +92,7 @@ namespace Kafka.Producer
 				var message = new Message<int, OrderCreatedEvent>()
 				{
 					Value = orderCreatedEvent,
-					Key = item
+					Key = item,
 				};
 				var result = await producer.ProduceAsync(topicName, message);
 
@@ -149,6 +155,34 @@ namespace Kafka.Producer
 				{
 					Value = orderCreatedEvent,
 					Key = new MessageKey("key1 value", "key2 value")
+				};
+				var result = await producer.ProduceAsync(topicName, message);
+
+				foreach (var propertyInfo in result.GetType().GetProperties())
+				{
+					Console.WriteLine($"{propertyInfo.Name}:{propertyInfo.GetValue(result)}");
+				}
+				Console.WriteLine(new string('-', 50));
+				await Task.Delay(10);
+			}
+		}
+		internal async Task SendMessageWithTimeStamp(string topicName)
+		{
+			var config = new ProducerConfig { BootstrapServers = "localhost:9094" };
+
+			using var producer = new ProducerBuilder<MessageKey, OrderCreatedEvent>(config)
+				.SetValueSerializer(new CustomValueSerializer<OrderCreatedEvent>())
+				.SetKeySerializer(new CustomKeySerializer<MessageKey>())
+				.Build();
+
+			foreach (var item in Enumerable.Range(1, 3))
+			{
+				var orderCreatedEvent = new OrderCreatedEvent { OrderCode = Guid.NewGuid().ToString(), TotalPrice = item * 100, UserId = item };
+				var message = new Message<MessageKey, OrderCreatedEvent>()
+				{
+					Value = orderCreatedEvent,
+					Key = new MessageKey("key1 value", "key2 value"),
+					//Timestamp = new Timestamp(new DateTime(2015, 05, 23)) belirtmezsek default olarak zaten guncel tarihte timestamp eklenir
 				};
 				var result = await producer.ProduceAsync(topicName, message);
 

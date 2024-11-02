@@ -9,8 +9,8 @@ namespace Kafka.Producer
 		{
 			var kafkaService = new KafkaService();
 			var topicName = "use-case-3-topic";
-			await kafkaService.CreateTopicAsync(topicName);
-			await kafkaService.SendComplexMessageWithComplexKey(topicName);
+			await kafkaService.CreateTopicAsync(topicName);  
+			await kafkaService.SendMessageWithTimeStamp(topicName);
 
 			Console.WriteLine("mesajlar gonderilmistir");
 		}
