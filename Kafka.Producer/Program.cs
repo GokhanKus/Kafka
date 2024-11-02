@@ -8,7 +8,7 @@ namespace Kafka.Producer
 		static async Task Main(string[] args)
 		{
 			var kafkaService = new KafkaService();
-			var topicName = "use-case-4-topic";
+			var topicName = "use-case-5-topic";
 			await kafkaService.CreateTopicAsync(topicName);  
 			await kafkaService.SendMessageToSpecificPartition(topicName);
 

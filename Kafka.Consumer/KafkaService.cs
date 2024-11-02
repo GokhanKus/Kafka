@@ -38,16 +38,13 @@ namespace Kafka.Consumer
 				BootstrapServers = "localhost:9094",
 				GroupId = "use-case-1-group-1",
 				AutoOffsetReset = AutoOffsetReset.Earliest
-				//ornegin queue'da 10 tane mesaj onceden varsa biz baglandigimizda once o 10 tane mesaji okuyacagimi daha sonrasında gelen mesajları okuyacagini belirtiyorum
-				//latest dersek baglandigimiz andan itabaren mesajları okumaya baslar oncekileri 
 			};
 			using var consumer = new ConsumerBuilder<int, string>(config).Build();
 			consumer.Subscribe(topicName);
 
 			while (true)
 			{
-				var consumeResult = consumer.Consume(5000); //burasi bloklayici bir satir; mesaj gelene kadar burada kod bloke olur o yüzden timeout verelim
-															//5 saniye bekleyip bu consumer.consume() satırından cıkacak
+				var consumeResult = consumer.Consume(5000); 
 				if (consumeResult != null)
 				{
 					Console.WriteLine($"gelen mesaj: key = {consumeResult.Message.Key} value = {consumeResult.Message.Value})");
@@ -62,8 +59,6 @@ namespace Kafka.Consumer
 				BootstrapServers = "localhost:9094",
 				GroupId = "use-case-1-group-1",
 				AutoOffsetReset = AutoOffsetReset.Earliest
-				//ornegin queue'da 10 tane mesaj onceden varsa biz baglandigimizda once o 10 tane mesaji okuyacagimi daha sonrasında gelen mesajları okuyacagini belirtiyorum
-				//latest dersek baglandigimiz andan itabaren mesajları okumaya baslar oncekileri 
 			};
 			using var consumer = new ConsumerBuilder<int, OrderCreatedEvent>(config)
 				.SetValueDeserializer(new CustomValueDeserializer<OrderCreatedEvent>())
@@ -73,8 +68,7 @@ namespace Kafka.Consumer
 
 			while (true)
 			{
-				var consumeResult = consumer.Consume(5000); //burasi bloklayici bir satir; mesaj gelene kadar burada kod bloke olur o yüzden timeout verelim
-															//5 saniye bekleyip bu consumer.consume() satırından cıkacak
+				var consumeResult = consumer.Consume(5000);
 				if (consumeResult != null)
 				{
 					var orderCreatedEvent = consumeResult.Message.Value;
@@ -91,8 +85,6 @@ namespace Kafka.Consumer
 				BootstrapServers = "localhost:9094",
 				GroupId = "use-case-1-group-1",
 				AutoOffsetReset = AutoOffsetReset.Earliest
-				//ornegin queue'da 10 tane mesaj onceden varsa biz baglandigimizda once o 10 tane mesaji okuyacagimi daha sonrasında gelen mesajları okuyacagini belirtiyorum
-				//latest dersek baglandigimiz andan itabaren mesajları okumaya baslar oncekileri 
 			};
 			using var consumer = new ConsumerBuilder<int, OrderCreatedEvent>(config)
 				.SetValueDeserializer(new CustomValueDeserializer<OrderCreatedEvent>())
@@ -102,8 +94,7 @@ namespace Kafka.Consumer
 
 			while (true)
 			{
-				var consumeResult = consumer.Consume(5000); //burasi bloklayici bir satir; mesaj gelene kadar burada kod bloke olur o yüzden timeout verelim
-															//5 saniye bekleyip bu consumer.consume() satırından cıkacak
+				var consumeResult = consumer.Consume(5000);
 				if (consumeResult != null)
 				{
 					var correlationId = Encoding.UTF8.GetString(consumeResult.Message.Headers.GetLastBytes("correlation_id"));  //Headers[0].GetValueBytes();
@@ -124,8 +115,6 @@ namespace Kafka.Consumer
 				BootstrapServers = "localhost:9094",
 				GroupId = "use-case-1-group-1",
 				AutoOffsetReset = AutoOffsetReset.Earliest
-				//ornegin queue'da 10 tane mesaj onceden varsa biz baglandigimizda once o 10 tane mesaji okuyacagimi daha sonrasında gelen mesajları okuyacagini belirtiyorum
-				//latest dersek baglandigimiz andan itabaren mesajları okumaya baslar oncekileri 
 			};
 			using var consumer = new ConsumerBuilder<MessageKey, OrderCreatedEvent>(config)
 				.SetValueDeserializer(new CustomValueDeserializer<OrderCreatedEvent>())
@@ -136,8 +125,7 @@ namespace Kafka.Consumer
 
 			while (true)
 			{
-				var consumeResult = consumer.Consume(5000); //burasi bloklayici bir satir; mesaj gelene kadar burada kod bloke olur o yüzden timeout verelim
-															//5 saniye bekleyip bu consumer.consume() satırından cıkacak
+				var consumeResult = consumer.Consume(5000); 
 				if (consumeResult != null)
 				{
 					var orderCreatedEvent = consumeResult.Message.Value;
@@ -156,8 +144,6 @@ namespace Kafka.Consumer
 				BootstrapServers = "localhost:9094",
 				GroupId = "use-case-1-group-1",
 				AutoOffsetReset = AutoOffsetReset.Earliest
-				//ornegin queue'da 10 tane mesaj onceden varsa biz baglandigimizda once o 10 tane mesaji okuyacagimi daha sonrasında gelen mesajları okuyacagini belirtiyorum
-				//latest dersek baglandigimiz andan itabaren mesajları okumaya baslar oncekileri 
 			};
 			using var consumer = new ConsumerBuilder<MessageKey, OrderCreatedEvent>(config)
 				.SetValueDeserializer(new CustomValueDeserializer<OrderCreatedEvent>())
@@ -168,8 +154,7 @@ namespace Kafka.Consumer
 
 			while (true)
 			{
-				var consumeResult = consumer.Consume(5000); //burasi bloklayici bir satir; mesaj gelene kadar burada kod bloke olur o yüzden timeout verelim
-															//5 saniye bekleyip bu consumer.consume() satırından cıkacak
+				var consumeResult = consumer.Consume(5000); 
 				if (consumeResult != null)
 				{
 					var orderCreatedEvent = consumeResult.Message.Value;
@@ -191,8 +176,6 @@ namespace Kafka.Consumer
 				BootstrapServers = "localhost:9094",
 				GroupId = "use-case-1-group-1",
 				AutoOffsetReset = AutoOffsetReset.Earliest
-				//ornegin queue'da 10 tane mesaj onceden varsa biz baglandigimizda once o 10 tane mesaji okuyacagimi daha sonrasında gelen mesajları okuyacagini belirtiyorum
-				//latest dersek baglandigimiz andan itabaren mesajları okumaya baslar oncekileri 
 			};
 			using var consumer = new ConsumerBuilder<Null, string>(config).Build();
 			var topicPartition = new TopicPartition(topicName, new Partition(2));
@@ -200,8 +183,30 @@ namespace Kafka.Consumer
 
 			while (true)
 			{
-				var consumeResult = consumer.Consume(5000); //burasi bloklayici bir satir; mesaj gelene kadar burada kod bloke olur o yüzden timeout verelim
-															//5 saniye bekleyip bu consumer.consume() satırından cıkacak
+				var consumeResult = consumer.Consume(5000);
+				if (consumeResult != null)
+				{
+					Console.WriteLine($"gelen mesaj : ({consumeResult.Message.Value})");
+				}
+				await Task.Delay(20);
+			}
+		}
+		internal async Task ConsumeMessageInTheSpecificPartitionOffSet(string topicName)
+		{
+			var config = new ConsumerConfig
+			{
+				BootstrapServers = "localhost:9094",
+				GroupId = "use-case-1-group-3",
+				AutoOffsetReset = AutoOffsetReset.Earliest
+			
+			};
+			using var consumer = new ConsumerBuilder<Null, string>(config).Build();
+			var topicPartitionOffset = new TopicPartitionOffset(topicName, partition: 2, offset: 4); //2.partitiondaki mesajlari 4. mesajdan sonrakileri okur .
+			consumer.Assign(topicPartitionOffset);
+
+			while (true)
+			{
+				var consumeResult = consumer.Consume(5000);
 				if (consumeResult != null)
 				{
 					Console.WriteLine($"gelen mesaj : ({consumeResult.Message.Value})");
