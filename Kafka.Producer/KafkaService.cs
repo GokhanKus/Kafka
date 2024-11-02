@@ -2,6 +2,7 @@
 using Confluent.Kafka;
 using Kafka.Producer.Events;
 using System.Text;
+using System.ComponentModel.DataAnnotations;
 
 namespace Kafka.Producer
 {
@@ -14,15 +15,10 @@ namespace Kafka.Producer
 				BootstrapServers = "localhost:9094"
 			}).Build();
 
-			var configs = new Dictionary<string, string>()
-			{
-				{"message.timestamp.type","LogAppendTime" }
-			};
-
 			try
 			{
 				await adminClient.CreateTopicsAsync(new[]{
-				new TopicSpecification{Name = topicName,NumPartitions = 3,ReplicationFactor = 1,Configs = configs}
+				new TopicSpecification{Name = topicName,NumPartitions = 6, ReplicationFactor = 1}
 				});
 				Console.WriteLine($"topic ({topicName}) olustu");
 			}
@@ -185,6 +181,31 @@ namespace Kafka.Producer
 					//Timestamp = new Timestamp(new DateTime(2015, 05, 23)) belirtmezsek default olarak zaten guncel tarihte timestamp eklenir
 				};
 				var result = await producer.ProduceAsync(topicName, message);
+
+				foreach (var propertyInfo in result.GetType().GetProperties())
+				{
+					Console.WriteLine($"{propertyInfo.Name}:{propertyInfo.GetValue(result)}");
+				}
+				Console.WriteLine(new string('-', 50));
+				await Task.Delay(10);
+			}
+		}
+		internal async Task SendMessageToSpecificPartition(string topicName)
+		{
+			var config = new ProducerConfig { BootstrapServers = "localhost:9094" };
+
+			using var producer = new ProducerBuilder<Null, string>(config).Build();
+
+			foreach (var item in Enumerable.Range(1, 10))
+			{
+				var message = new Message<Null, string>
+				{
+					Value = $"message: {item}"
+				};
+
+				var topicPartition = new TopicPartition(topicName, new Partition(2)); //2.indexteki partitiona mesaj gonderelim
+
+				var result = await producer.ProduceAsync(topicPartition, message);
 
 				foreach (var propertyInfo in result.GetType().GetProperties())
 				{
