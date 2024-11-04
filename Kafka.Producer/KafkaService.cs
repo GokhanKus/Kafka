@@ -72,6 +72,30 @@ namespace Kafka.Producer
 				Console.WriteLine(ex.Message);
 			}
 		}
+		internal async Task CreateTopicRetryWithClusterAsync(string topicName)
+		{
+			using var adminClient = new AdminClientBuilder(new AdminClientConfig
+			{
+				BootstrapServers = "localhost:7000,localhost:7001,localhost:7002"
+			}).Build();
+
+			var configs = new Dictionary<string, string>()
+			{
+				{"min.insync.replicas","3" }//Acks.All demek yetmiyor burada da brokerlara => partitionlara mesajlarin basarili bir sekilde ulastigini garanti etmesi lazim
+			};
+
+			try
+			{
+				await adminClient.CreateTopicsAsync(new[]{
+				new TopicSpecification{Name = topicName,NumPartitions = 6, ReplicationFactor = 3,Configs = configs}
+				});
+				Console.WriteLine($"topic ({topicName}) olustu");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
+			}
+		}
 		internal async Task SendSimpleMessageWithNullKey(string topicName)
 		{
 			var config = new ProducerConfig { BootstrapServers = "localhost:9094" };
@@ -314,6 +338,36 @@ namespace Kafka.Producer
 				Console.WriteLine(new string('-', 50));
 				await Task.Delay(10);
 			}
+		}
+		internal async Task SendMessageWithRetryToCluster(string topicName)
+		{
+			//ornegin bu metot icin dockerda 7002'li brokeri stop edip bu metodu calistirirsak Acks.All oldugu icin surekli retry'a dusecek, None olsaydı 
+			//mesaj bize ulasmis gibi gorunecekti ama mesaj gelmeyecek, bu retry'ı kontrol altına almamız gerekiyor. 2 yontem var MessageTimeoutMs ve MessageSendMaxRetries
+			var config = new ProducerConfig
+			{
+				//3 adet brokerlarimizin portu
+				BootstrapServers = "localhost:7000,localhost:7001,localhost:7002",
+				Acks = Acks.All, //Acks.Leader ,Acks.None,
+				MessageTimeoutMs = 5000, //5 saniye boyunca retry eder basaramazsa hata firlatir, bu MessageSendMaxRetries yerine tavsiye edilir 
+				RetryBackoffMaxMs = 2000 //2 saniye araliklarla retry etsin
+				//MessageSendMaxRetries = 5 // 5 kere deneyecek basaramazsa exception firlatacak
+			};
+			
+            using var producer = new ProducerBuilder<Null, string>(config).Build();
+
+			var message = new Message<Null, string>
+			{
+				Value = $"message: 1"
+			};
+
+			var result = await producer.ProduceAsync(topicName, message);
+
+			foreach (var propertyInfo in result.GetType().GetProperties())
+			{
+				Console.WriteLine($"{propertyInfo.Name}:{propertyInfo.GetValue(result)}");
+			}
+			Console.WriteLine(new string('-', 50));
+			await Task.Delay(10);
 		}
 	}
 }
