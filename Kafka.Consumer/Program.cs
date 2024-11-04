@@ -5,9 +5,9 @@
 		static async Task Main(string[] args)
 		{
 			Console.WriteLine("Kafka Consumer 1");
-			var topicName = "ack-topic";
+			var topicName = "mycluster2-topic";
 			var kafkaService = new KafkaService();
-			await kafkaService.ConsumeMessageWithAcknowledgement(topicName);
+			await kafkaService.ConsumeMessageFromCluster(topicName);
 			Console.ReadLine();
 		}
 	}

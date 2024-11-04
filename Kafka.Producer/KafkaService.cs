@@ -53,6 +53,25 @@ namespace Kafka.Producer
 				Console.WriteLine(ex.Message);
 			}
 		}
+		internal async Task CreateTopicWithClusterAsync(string topicName)
+		{
+			using var adminClient = new AdminClientBuilder(new AdminClientConfig
+			{
+				BootstrapServers = "localhost:7000,localhost:7001,localhost:7002"
+			}).Build();
+
+			try
+			{
+				await adminClient.CreateTopicsAsync(new[]{
+				new TopicSpecification{Name = topicName,NumPartitions = 6, ReplicationFactor = 3}//replication 3 olursa 2 replica +1 leader
+				});
+				Console.WriteLine($"topic ({topicName}) olustu");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
+			}
+		}
 		internal async Task SendSimpleMessageWithNullKey(string topicName)
 		{
 			var config = new ProducerConfig { BootstrapServers = "localhost:9094" };
@@ -246,6 +265,34 @@ namespace Kafka.Producer
 			var config = new ProducerConfig
 			{
 				BootstrapServers = "localhost:9094",
+				Acks = Acks.All //Acks.Leader ,Acks.None,
+			};
+
+			using var producer = new ProducerBuilder<Null, string>(config).Build();
+
+			foreach (var item in Enumerable.Range(1, 10))
+			{
+				var message = new Message<Null, string>
+				{
+					Value = $"message: {item}"
+				};
+
+				var result = await producer.ProduceAsync(topicName, message);
+
+				foreach (var propertyInfo in result.GetType().GetProperties())
+				{
+					Console.WriteLine($"{propertyInfo.Name}:{propertyInfo.GetValue(result)}");
+				}
+				Console.WriteLine(new string('-', 50));
+				await Task.Delay(10);
+			}
+		}
+		internal async Task SendMessageToCluster(string topicName)
+		{
+			var config = new ProducerConfig
+			{
+				//3 adet brokerlarimizin portu
+				BootstrapServers = "localhost:7000,localhost:7001,localhost:7002",
 				Acks = Acks.All //Acks.Leader ,Acks.None,
 			};
 

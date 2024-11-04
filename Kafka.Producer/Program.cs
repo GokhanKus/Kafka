@@ -8,9 +8,9 @@ namespace Kafka.Producer
 		static async Task Main(string[] args)
 		{
 			var kafkaService = new KafkaService();
-			var topicName = "retention-topic";
-			await kafkaService.CreateTopicWithRetentionTimeAsync(topicName);  
-			await kafkaService.SendMessageWithAcknowledgement(topicName);
+			var topicName = "mycluster2-topic";
+			await kafkaService.CreateTopicWithClusterAsync(topicName);
+			await kafkaService.SendMessageToCluster(topicName);
 
 			Console.WriteLine("mesajlar gonderilmistir");
 		}
