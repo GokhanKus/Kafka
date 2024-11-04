@@ -27,6 +27,32 @@ namespace Kafka.Producer
 				Console.WriteLine(ex.Message);
 			}
 		}
+		internal async Task CreateTopicWithRetentionTimeAsync(string topicName)
+		{
+			using var adminClient = new AdminClientBuilder(new AdminClientConfig
+			{
+				BootstrapServers = "localhost:9094"
+			}).Build();
+
+			TimeSpan timeSpan = TimeSpan.FromDays(30);
+			var config = new Dictionary<string, string>()
+			{
+				//{"retention.bytes","10000" } topic partition byte cinsinden size'a gore saklar 10kb
+				//{"retention.ms","-1" } omur boyu loglari saklar
+				{"retention.ms",timeSpan.TotalMilliseconds.ToString() } //30 gun boyunca saklar
+			};
+			try
+			{
+				await adminClient.CreateTopicsAsync(new[]{
+				new TopicSpecification{Name = topicName,NumPartitions = 6, ReplicationFactor = 1,Configs = config}
+				});
+				Console.WriteLine($"topic ({topicName}) olustu");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine(ex.Message);
+			}
+		}
 		internal async Task SendSimpleMessageWithNullKey(string topicName)
 		{
 			var config = new ProducerConfig { BootstrapServers = "localhost:9094" };
@@ -276,4 +302,9 @@ acks degeri All veya -1 olursa;
 hem partitiondaki leader icin hem de diger brokerlardaki replicalar icin gonderilen mesajin basarili olmasının onayini bekler full guvenliklidir
 buna ornek olarak mesela siparis bilgileri iceren mesajlar olabilir bununla ilgili veri kaybi tolere edilemez
 ihtiyaca gore 3'u de kullanilabilir
+
+kafkada mesajlarin barinma süresi default olarak 7 gündür (retention time) sonra silinir bunu degistirebiliriz ya da
+size limit vererek diyebiliriz ki ornegin partition 30 mb olabilir 30mbyi gectiginde en eski olanlardan itabaren silmeye basla
+genelde retention time kullanmak daha iyi
+
 */
