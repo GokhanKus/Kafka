@@ -1,9 +1,10 @@
 ﻿using Confluent.Kafka;
+using Confluent.Kafka.Admin;
 using Shared.Events;
 
 namespace Order.API.Services
 {
-	public class Bus(IConfiguration configuration) : IBus
+	public class Bus(IConfiguration configuration, ILogger<Bus> logger) : IBus
 	{
 		private readonly ProducerConfig config = new() //primarly constructor geleneksel ctordan farklı olarak..
 		{
@@ -27,6 +28,28 @@ namespace Order.API.Services
 
 			var result = await producer.ProduceAsync(topicQueueName, message);
 			return result.Status == PersistenceStatus.Persisted; //5sn icinde gonderebilirse true, yoksa false exception fırlatacak
+		}
+		public async Task CreateTopicOrQueue(List<string> topicOrQueueNameList)
+		{
+			using var adminClient = new AdminClientBuilder(new AdminClientConfig
+			{
+				BootstrapServers = configuration.GetSection(key: "BusSettings").GetSection(key: "Kafka")["BootstrapServers"],
+			}).Build();
+
+			try
+			{
+				foreach (var topicOrQueue in topicOrQueueNameList)
+				{
+					await adminClient.CreateTopicsAsync(new[]{
+					new TopicSpecification{Name = topicOrQueue, NumPartitions = 6, ReplicationFactor = 1}
+					});
+					logger.LogInformation($"topic ({topicOrQueue}) olustu");
+				}
+			}
+			catch (Exception ex)
+			{
+				logger.LogWarning(ex.Message);  
+			}
 		}
 	}
 }
