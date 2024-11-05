@@ -1,4 +1,7 @@
 
+using Stock.API.BackGroundServices;
+using Stock.API.Services;
+
 namespace Stock.API
 {
 	public class Program
@@ -13,6 +16,9 @@ namespace Stock.API
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
 			builder.Services.AddSwaggerGen();
+
+			builder.Services.AddSingleton<IBus, Bus>();
+			builder.Services.AddHostedService<OrderCreatedEventConsumerBGService>();
 
 			var app = builder.Build();
 
